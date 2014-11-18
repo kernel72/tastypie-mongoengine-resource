@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='tastypie-mongoengine-resource',
-    version='0.1.0',
+    version='0.1.2',
     py_modules=['tastypieMongoengineResource'],
     url='https://github.com/kernel72/tastypie-mongoengine-resource',
     license='https://github.com/kernel72/tastypie-mongoengine-resource/blob/master/LICENSE',

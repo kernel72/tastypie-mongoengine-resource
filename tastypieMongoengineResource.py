@@ -46,6 +46,20 @@ class BasicMongoResource(Resource):
         result = self.get_object_list(request).filter(**applicable_filters.dict())
         return result
 
+    def apply_sorting(self, obj_list, options=None):
+        if options is None:
+            options = {}
+
+        if 'order_by' not in options:
+            return obj_list
+
+        if hasattr(options, 'getlist'):
+            order_values = options.getlist('order_by')
+        else:
+            order_values = options.get('order_by').split(',')
+
+        return obj_list.order_by(*order_values)
+
     def build_filters(self, filters=None):
         if filters is None:
             filters = {}
@@ -67,7 +81,7 @@ class BasicMongoResource(Resource):
             if f_name == 'resource_uri':
                 continue
 
-            if f_instance.use_in not in (use_in, 'all'):
+            if f_instance.use_in not in (use_in, 'all') or f_instance.attribute is None:
                 continue
             only_fields.append(f_instance.attribute)
         return only_fields
@@ -81,6 +95,7 @@ class BasicMongoResource(Resource):
         applicable_filters = self.build_filters(filters=filters)
 
         only_fields = self.get_query_only_fields('list')
+        only_fields = set(self._meta.object_class._fields_ordered).intersection(only_fields)
 
         objects = self.apply_filters(bundle.request, applicable_filters).only(*only_fields)
 
